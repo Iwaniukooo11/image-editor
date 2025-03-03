@@ -1,4 +1,6 @@
-venv/          # jeśli środowisko nazywa się "venv"
+venv/
+venv/*
+venv/**/*
 .env/
 *.pyc
 __pycache__/
