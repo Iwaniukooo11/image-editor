@@ -1,0 +1,6 @@
+venv/          # jeśli środowisko nazywa się "venv"
+.env/
+*.pyc
+__pycache__/
+*.log
+*.csv
