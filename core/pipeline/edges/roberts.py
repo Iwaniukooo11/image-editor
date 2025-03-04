@@ -1,0 +1,39 @@
+from dataclasses import dataclass
+from edges.base_edge import BaseEdge, EdgeParams
+import numpy as np
+from scipy.ndimage import convolve
+
+@dataclass
+class RobertsParams(EdgeParams):
+    """Parameters for the Roberts edge detection filter."""
+    threshold: int = 128
+
+    def validate(self):
+        if not isinstance(self.threshold, int):
+            raise ValueError("threshold must be an integer")
+        
+class RobertsEdge(BaseEdge):
+    @classmethod
+    def apply(cls, img: np.array, params: RobertsParams) -> np.array:
+        """Apply the Roberts edge detection to the image.
+        
+        Args:
+            img (np.array): The input image.
+            params (RobertsParams): The parameters for the edge detection.
+        
+        Returns:
+            np.array: The processed image.
+        """
+        params.validate()
+        roberts_x = np.array([[1, 0], [0, -1]])
+        roberts_y = np.array([[0, 1], [-1, 0]])
+        
+        # Convert RGB image to grayscale
+        if img.ndim == 3:
+            img = np.dot(img[..., :3], [0.2989, 0.5870, 0.1140]).astype(np.uint8)
+        
+        gradient_x = np.abs(convolve(img, roberts_x, mode='reflect'))
+        gradient_y = np.abs(convolve(img, roberts_y, mode='reflect'))
+        gradient = np.sqrt(gradient_x ** 2 + gradient_y ** 2)
+        
+        return np.where(gradient > params.threshold, 255, 0)
