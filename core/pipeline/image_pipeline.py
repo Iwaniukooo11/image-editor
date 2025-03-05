@@ -1,9 +1,19 @@
+#print all modules
+import sys
+import os
+# pipeline_path = os.path.abspath(os.path.join(os.getcwd(), '..','interfaces'))
+# sys.path.append(pipeline_path)
+# for i in sys.modules:
+#     print(i)
+
+
 from typing import List, Tuple
 import numpy as np
 #import basefilter from folder filters which neighbour to ucrrent location
 # from filters.base_filter import BaseFilter, FilterParams
 from interfaces.IBase import IBase
 from interfaces.IParams import IParams
+
 
 
 class ImagePipeline:
@@ -41,10 +51,6 @@ class ImagePipeline:
         """Clear all steps from the pipeline."""
         self.__steps = []
 
-    # def get_steps(self) -> List[Tuple[IBase, IParams]]:
-    #     """Get the list of steps in the pipeline.
-        
-    #     Returns:
-    #         List[Tuple[IBase, IParams]]: The list of steps.
-    #     """
-        # return self.__steps
+    def get_steps(self):
+        """Get the list of steps in the pipeline."""
+        return self.__steps

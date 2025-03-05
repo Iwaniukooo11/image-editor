@@ -12,6 +12,27 @@ class GrayscaleParams(FilterParams):
          if self.method not in ["luminosity", "average", "lightness"]:
              raise ValueError("method must be one of 'luminosity', 'average', or 'lightness'")
          
+    
+    def get_param_definitions():
+        return {
+            'method': {
+                'type': 'radio',
+                'options': {
+                    'luminosity': 'Weighted (Luminosity)',
+                    'average': 'Average',
+                    'lightness': 'Lightness'
+                },
+                'default': 'luminosity'
+            },
+            'intensity': {
+                'type': 'slider',
+                'min': 0,
+                'max': 2,
+                'step': 0.01,
+                'default': 1.0
+            }
+        }
+         
 class GrayscaleFilter(BaseFilter):
     @classmethod
     def apply(self, img: np.array, params: GrayscaleParams) -> np.array:

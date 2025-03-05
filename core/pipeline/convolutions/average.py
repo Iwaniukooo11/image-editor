@@ -14,6 +14,17 @@ class AverageParams(ConvolutionParams):
         if self.kernel_size < 3:
             raise ValueError("kernel_size must be at least 3")
         
+    def get_param_definitions():
+        return {
+            'kernel_size': {
+                'type': 'slider',
+                'min': 3,
+                'max': 21,
+                'step': 2,
+                'default': 3
+            }
+        }
+        
 class AverageConvolution(BaseConvolution):
     @classmethod
     def apply(cls, img: np.array, params: AverageParams) -> np.array:

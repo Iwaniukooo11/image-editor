@@ -17,6 +17,24 @@ class SharpeningParams(ConvolutionParams):
         if self.alpha <= 0:
             raise ValueError("alpha must be positive")
         
+    def get_param_definitions():
+        return {
+            'kernel_size': {
+                'type': 'slider',
+                'min': 3,
+                'max': 21,
+                'step': 2,
+                'default': 3
+            },
+            'alpha': {
+                'type': 'slider',
+                'min': 0.1,
+                'max': 5.0,
+                'step': 0.1,
+                'default': 1.0
+            }
+        }
+        
 class SharpeningConvolution(BaseConvolution):
     @classmethod
     def apply(cls, img: np.array, params: SharpeningParams) -> np.array:

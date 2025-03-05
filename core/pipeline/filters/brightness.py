@@ -11,6 +11,19 @@ class BrightnessParams(FilterParams):
         if not isinstance(self.value, int):
             raise ValueError("value must be an integer")
         
+    @staticmethod
+    def get_param_definitions():
+        return {
+            'value': {
+                'type': 'slider',
+                'min': -100,
+                'max': 100,
+                'step': 1,
+                'default': 0
+            }
+        }
+        
+        
 class BrightnessFilter(BaseFilter):
     @classmethod
     def apply(self, img: np.array, params: BrightnessParams) -> np.array:

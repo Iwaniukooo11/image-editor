@@ -16,6 +16,23 @@ class GaussianParams(ConvolutionParams):
             raise ValueError("kernel_size must be at least 3")
         if self.sigma <= 0:
             raise ValueError("sigma must be positive")
+    def get_param_definitions():
+        return {
+            'kernel_size': {
+                'type': 'slider',
+                'min': 3,
+                'max': 21,
+                'step': 2,
+                'default': 3
+            },
+            'sigma': {
+                'type': 'slider',
+                'min': 0.1,
+                'max': 5.0,
+                'step': 0.1,
+                'default': 1.0
+            }
+        }
         
 class GaussianConvolution(BaseConvolution):
     @classmethod

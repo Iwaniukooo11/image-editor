@@ -11,6 +11,17 @@ class BinarizationParams(FilterParams):
         if not isinstance(self.threshold, int):
             raise ValueError("threshold must be an integer")
         
+    def get_param_definitions():
+        return {
+            'threshold': {
+                'type': 'slider',
+                'min': 0,
+                'max': 255,
+                'step': 1,
+                'default': 128
+            }
+        }
+        
 class BinarizationFilter(BaseFilter):
     @classmethod
     def apply(self, img: np.array, params: BinarizationParams) -> np.array:

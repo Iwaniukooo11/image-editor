@@ -35,4 +35,6 @@ class ConvolutionParams(IParams):
     """Base class for convolution parameters."""
     def validate(self):
         pass
-    pass
+    
+    # def get_param_definitions():
+    #     return {}

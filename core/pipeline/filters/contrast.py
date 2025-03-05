@@ -11,6 +11,17 @@ class ContrastParams(FilterParams):
         if not isinstance(self.value, (int, float)):
             raise ValueError("value must be a number")
         
+    def get_param_definitions():
+        return {
+            'value': {
+                'type': 'slider',
+                'min': 0,
+                'max': 2,
+                'step': 0.01,
+                'default': 1.0
+            }
+        }
+        
 class ContrastFilter(BaseFilter):
     @classmethod
     def apply(self, img: np.array, params: ContrastParams) -> np.array:

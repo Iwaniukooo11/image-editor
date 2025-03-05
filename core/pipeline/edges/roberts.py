@@ -12,6 +12,17 @@ class RobertsParams(EdgeParams):
         if not isinstance(self.threshold, int):
             raise ValueError("threshold must be an integer")
         
+    def get_param_definitions():
+        return {
+            'threshold': {
+                'type': 'slider',
+                'min': 0,
+                'max': 255,
+                'step': 1,
+                'default': 128
+            }
+        }
+        
 class RobertsEdge(BaseEdge):
     @classmethod
     def apply(cls, img: np.array, params: RobertsParams) -> np.array:
