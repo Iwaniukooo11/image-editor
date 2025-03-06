@@ -86,14 +86,22 @@ def create_layout():
                 
                 # Zapisz obraz
                 dbc.Card([
-    dbc.CardHeader("Save Image"),
-    dbc.CardBody([
-        dbc.Input(id="filename-input", placeholder="Enter filename", className="mb-3"),
-        dbc.Button("Save Image", id="save-photo", color="primary", className="mb-3"),
-        html.Div(id='save-status'),
-        html.A('click here',id='download-link', download='', href='', target='_blank', style={'display': 'none'})
-    ])
-])
+                    dbc.CardHeader("Save Image"),
+                    dbc.CardBody([
+                        dbc.Input(id="filename-input", placeholder="Enter filename", className="mb-3"),
+                        dbc.Button("Save Image", id="save-photo", color="primary", className="mb-3"),
+                        html.Div(id='save-status'),
+                        html.A('click here', id='download-link', download='', href='', target='_blank', style={'display': 'none'})
+                    ])
+                ], className="mb-4"),
+                
+                # Panel z projekcjami i statystykami
+                dbc.Card([
+                    dbc.CardHeader("Image Projections and Statistics"),
+                    dbc.CardBody([
+                        html.Div(id='image-stats-container')
+                    ])
+                ], className="mb-4")
             ], md=4),
             
             # Panel wyświetlania (prawa strona)
@@ -107,12 +115,12 @@ def create_layout():
                 ], className="mb-4"),
                 
                 # Histogram kolorów
-                # dbc.Card([
-                #     dbc.CardHeader("Color Histogram"),
-                #     dbc.CardBody([
-                #         dcc.Graph(id='color-histogram')
-                #     ])
-                # ])
+                dbc.Card([
+                    dbc.CardHeader("Color Histogram"),
+                    dbc.CardBody([
+                        dcc.Graph(id='color-histogram')
+                    ])
+                ])
             ], md=8)
         ])
     ], fluid=True, className="mt-4")

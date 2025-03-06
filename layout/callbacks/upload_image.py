@@ -17,7 +17,9 @@ from core.pipeline.edges.roberts import RobertsParams,RobertsEdge
 import base64
 import io
 import numpy as np
+import pandas as pd
 from PIL import Image
+import plotly.express as px
 
 
 # Dictionary mapping filter names to their parameter classes
@@ -76,6 +78,61 @@ def create_param_ui(param_name, param_info):
 
 def parse_contents(contents):
     return html.Img(src=contents, style={'width': '100%', 'height': 'auto'})
+def generate_projections(image):
+    """Generate horizontal and vertical projection figures by converting image to grayscale first, then summing pixel values."""
+    gray = np.mean(image, axis=2)
+    h_proj = np.sum(gray, axis=1)
+    v_proj = np.sum(gray, axis=0)
+
+    fig_h = px.line(y=h_proj, title="Horizontal Projection")
+    fig_h.update_layout(xaxis_title="Row", yaxis_title="Sum of Intensity")
+
+    fig_v = px.line(y=v_proj, title="Vertical Projection")
+    fig_v.update_layout(xaxis_title="Column", yaxis_title="Sum of Intensity")
+
+    return fig_h, fig_v
+
+def generate_image_stats(image):
+    """Return a Dash component with basic image stats, like dimensions, min/max, and mean pixel."""
+    height, width, channels = image.shape
+    min_val = image.min()
+    max_val = image.max()
+    mean_val = image.mean()
+
+    return html.Div([
+        html.P(f"Dimensions: {width} x {height}"),
+        html.P(f"Channels: {channels}"),
+        html.P(f"Min Pixel Value: {min_val}"),
+        html.P(f"Max Pixel Value: {max_val}"),
+        html.P(f"Mean Pixel Value: {mean_val:.2f}")
+    ])
+import plotly.express as px
+
+def generate_histogram(image):
+    """Generate an RGB histogram plot for the image with frequency on the y-axis."""
+    r = image[:, :, 0].flatten()
+    g = image[:, :, 1].flatten()
+    b = image[:, :, 2].flatten()
+
+    df = pd.DataFrame({
+        'Channel': ['R'] * len(r) + ['G'] * len(g) + ['B'] * len(b),
+        'Value': np.concatenate([r, g, b])
+    })
+
+    fig = px.histogram(
+        df,
+        x='Value',
+        color='Channel',
+        nbins=256,
+        barmode='overlay',
+        color_discrete_map={'R': 'red', 'G': 'green', 'B': 'blue'}
+    )
+    fig.update_layout(
+        title='RGB Histogram',
+        xaxis_title='Channel Value',
+        yaxis_title='Frequency'
+    )
+    return fig
 
 def register_callbacks(app):
     @app.callback(
@@ -131,6 +188,7 @@ def register_callbacks(app):
     # Input('upload-image', 'contents'),
     # prevent_initial_call=True
     Output('output-image-upload', 'children', allow_duplicate=True),
+    Output('color-histogram', 'figure'),
     Input('add-filter', 'n_clicks'),
     Input('upload-image', 'contents'),
     
@@ -156,7 +214,12 @@ def register_callbacks(app):
         print('start')
         if n_clicks==0 or n_clicks is None:
             print('in if2')
-            return parse_contents(upload_image)
+            
+            
+            
+            # fig = generate_histogram(_image)
+            
+            return parse_contents(upload_image),dash.no_update
         
         # Create a list of parameter information with selected values
         param_info_list = []
@@ -228,7 +291,9 @@ def register_callbacks(app):
         base64_uri = f"data:image/png;base64,{encoded_result}"
         print('before return')
         # Zwracamy gotowy obraz przez parse_contents
-        return parse_contents(base64_uri)
+        fig = generate_histogram(result_array)
+        
+        return parse_contents(base64_uri), fig
    
     # @app.callback(
     #     Output('history-steps', 'children'),
@@ -271,3 +336,25 @@ def register_callbacks(app):
         if href:
             return "Image ready for download."
         return "Failed to prepare image for download."
+    
+    @app.callback(
+        Output('image-stats-container', 'children'),
+        Input('output-image-upload', 'children')
+    )
+    def update_image_stats_and_projections(image_children):
+        if not image_children:
+            return dash.no_update
+        header, _, encoded = image_children['props']['src'].partition(',')
+        decoded = base64.b64decode(encoded)
+        with io.BytesIO(decoded) as buf:
+            pil_img = Image.open(buf).convert('RGB')
+            image_array = np.array(pil_img)
+        stats_div = generate_image_stats(image_array)
+        fig_h, fig_v = generate_projections(image_array)
+        return html.Div([
+            stats_div,
+            dcc.Graph(figure=fig_h),
+            dcc.Graph(figure=fig_v),
+        ])
+    
+   
