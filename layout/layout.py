@@ -72,7 +72,7 @@ def create_layout():
                             )
                         ]),
                         html.Div(id='filter-parameters', className="mt-3"),
-                        dbc.Button("Add Filter", id="add-filter", color="success", className="mt-3", disabled=True)
+                        dbc.Button("Add Filter!", id="add-filter", color="success", className="mt-3", disabled=True)
                     ])
                 ], className="mb-4"),
                 

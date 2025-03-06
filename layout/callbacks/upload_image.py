@@ -1,7 +1,8 @@
 from dash import html
+import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State,ALL
 from core.pipeline.image_pipeline import ImagePipeline
 from core.pipeline.filters.brightness import BrightnessParams
 from core.pipeline.filters.contrast import ContrastParams
@@ -34,13 +35,14 @@ def create_param_ui(param_name, param_info):
         return [
             html.Label(f"{param_name.replace('_', ' ').title()}:"),
             dcc.Slider(
-                id=f'{param_name}-slider',
+                id={'type':'slider','index':f'{param_name}-slider'},
                 min=param_info.get('min', 0),
                 max=param_info.get('max', 100),
                 step=param_info.get('step', 1),
                 value=param_info.get('default', 0),
                 marks={i: str(i) for i in range(param_info.get('min', 0), param_info.get('max', 100) + 1, 10)},
                 tooltip={"placement": "bottom", "always_visible": True}
+                
             )
         ]
     elif param_info.get('type') == 'dropdown':
@@ -76,7 +78,7 @@ def register_callbacks(app):
         """Display parameter controls based on the filter's parameter class"""
         if not selected_filter or selected_filter not in FILTER_PARAM_MAPPING:
             return None
-        
+        print('gowno')
         # Get the parameter class for the selected filter
         param_class = FILTER_PARAM_MAPPING[selected_filter]
         
@@ -108,4 +110,44 @@ def register_callbacks(app):
                   [Input('upload-image', 'contents'),
                    Input('filter-dropdown', 'value')])
     def toggle_add_filter_button(contents, filter_value):
+        print('aaaa')
         return contents is None or filter_value is None
+
+ # ...existing code...
+    @app.callback(
+    Output('history-steps', 'children'),
+    Input('add-filter', 'n_clicks'),
+    Input('filter-dropdown', 'value'),
+    Input({'type': 'slider', 'index': ALL}, 'value')
+)
+    def update_history(n_clicks, filter_value, slider_values):
+        print('start',filter_value,slider_values)
+        if 'add-filter' not in  [p['prop_id'] for p in dash.callback_context.triggered][0]:
+        # or not filter_value:
+            return None
+        
+        # Create a list of parameter information with selected values
+        param_info_list = []
+        for i, value in enumerate(slider_values):
+            param_info_list.append(html.Li(f"Slider {i + 1}: {value}"))
+        
+        # Return the filter information
+        return html.Div([
+            html.H5(f"Applied Filter: {filter_value.capitalize()}"),
+            html.P("Parameters:"),
+            html.Ul(param_info_list)
+        ])
+   
+    # @app.callback(
+    #     Output('history-steps', 'children'),
+    #     Input('value-slider', 'value'),
+    #     Input('intensity-slider', 'intensity'),
+    #     Input('add-filter', 'n_clicks'),
+    #     Input('filter-dropdown', 'value')
+    # )
+    # def update_history(value, n_clicks, filter_value):
+    #     if n_clicks !=1:
+    #         return None
+    #     return html.Div([
+    #         html.P(f"Filter: {filter_value}, Value: {value}")
+    #     ])
