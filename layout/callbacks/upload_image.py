@@ -54,7 +54,8 @@ def create_param_ui(param_name, param_info):
         return [
             html.Label(f"{param_name.replace('_', ' ').title()}:"),
             dcc.Dropdown(
-                id=f'{param_name}-dropdown',
+                # id=f'{param_name}-dropdown',
+                id={'type':'dropdown','index':f'{param_name}-dropdown'},
                 options=[{'label': opt, 'value': val} for val, opt in param_info.get('options', {}).items()],
                 value=param_info.get('default')
             )
@@ -63,7 +64,8 @@ def create_param_ui(param_name, param_info):
         return [
             html.Label(f"{param_name.replace('_', ' ').title()}:"),
             dcc.RadioItems(
-                id=f'{param_name}-radio',
+                # id=f'{param_name}-radio',
+                id={'type':'radio','index':f'{param_name}-radio'},
                 options=[{'label': opt, 'value': val} for val, opt in param_info.get('options', {}).items()],
                 value=param_info.get('default')
             )
@@ -133,11 +135,13 @@ def register_callbacks(app):
     
     State('filter-dropdown', 'value'),
     State({'type': 'slider', 'index': ALL}, 'value'),
+    State({'type': 'dropdown', 'index': ALL}, 'value'),
+    State({'type': 'radio', 'index': ALL}, 'value'),
     # State('output-image-upload', 'children'),
     State('output-image-upload', 'children'),
     prevent_initial_call=True
 )
-    def update_history(n_clicks,upload_image,filter_value, slider_values, image):
+    def update_history(n_clicks,upload_image,filter_value, slider_values,dropdown_values,radio_values, image):
         # print('start',filter_value,slider_values)
         # if 'add-filter' not in  [p['prop_id'] for p in dash.callback_context.triggered][0]:
         # # or not filter_value:
@@ -157,6 +161,12 @@ def register_callbacks(app):
         param_info_list = []
         for i, value in enumerate(slider_values):
             print(f"Slider {i + 1}: {value}")
+        
+        for i, value in enumerate(dropdown_values):
+            print(f"Dropdown {i + 1}: {value}")
+        
+        for i, value in enumerate(radio_values):
+            print(f"Radio {i + 1}: {value}")
         
         # Return the filter information
         # print('image',image)
@@ -178,8 +188,9 @@ def register_callbacks(app):
         elif(filter_value=='contrast'):
             pipeline.add_step(filter=ContrastFilter(),params=ContrastParams(value=slider_values[0]))
             
-        # elif(filter_value=='grayscale'):
-        #     pipeline.add_step(filter=GrayscaleFilter(),params=GrayscaleParams())
+        elif(filter_value=='grayscale'):
+            pipeline.add_step(filter=GrayscaleFilter(),params=GrayscaleParams(method=radio_values[0],intensity=slider_values[0]))
+        
         elif(filter_value=='binarization'):
             pipeline.add_step(filter=BinarizationFilter(),params=BinarizationParams(threshold=slider_values[0]))
             
@@ -188,16 +199,15 @@ def register_callbacks(app):
         elif(filter_value=='average'):
             pipeline.add_step(filter=AverageConvolution(),params=AverageParams(slider_values[0]))
             
-        # elif(filter_value=='gaussian'):
-        #     pipeline.add_step(filter=GaussianConvolution(),params=GaussianParams(slider_values[0]))
+        elif(filter_value=='gaussian'):
+            pipeline.add_step(filter=GaussianConvolution(),params=GaussianParams(kernel_size=slider_values[0],sigma=slider_values[1]))
             
-        # elif(filter_value=='sharpening'):
-        #     pipeline.add_step(filter=SharpeningConvolution(),params=SharpeningParams(slider_values[0]))
+        elif(filter_value=='sharpening'):
+            pipeline.add_step(filter=SharpeningConvolution(),params=SharpeningParams(kernel_size=slider_values[0],alpha=slider_values[1]))
             
         elif(filter_value=='sobel'):
             pipeline.add_step(filter=SobelEdge(),params=SobelParams(slider_values[0]))
-        # elif(filter_value=='gaussian'):
-        #     pipeline.add_step(filter=GaussianConvolution(),params=GaussianParams())
+        
         
         elif(filter_value=='roberts'):
             pipeline.add_step(filter=RobertsEdge(),params=RobertsParams(slider_values[0]))
