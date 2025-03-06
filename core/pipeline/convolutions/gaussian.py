@@ -7,7 +7,7 @@ from scipy.ndimage import convolve
 class GaussianParams(ConvolutionParams):
     """Parameters for the Gaussian convolution."""
     kernel_size: int = 3
-    sigma: float = 1.0
+    sigma: int = 1
 
     def validate(self):
         if self.kernel_size % 2 == 0:

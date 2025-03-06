@@ -45,7 +45,7 @@ def create_param_ui(param_name, param_info):
                 max=param_info.get('max', 100),
                 step=param_info.get('step', 1),
                 value=param_info.get('default', 0),
-                marks={i: str(i) for i in range(param_info.get('min', 0), param_info.get('max', 100) + 1, 10)},
+                # marks={i: str(i) for i in range(param_info.get('min', 0), param_info.get('max', 100) + 1, 10)},
                 tooltip={"placement": "bottom", "always_visible": True}
                 
             )
@@ -181,16 +181,29 @@ def register_callbacks(app):
         # elif(filter_value=='grayscale'):
         #     pipeline.add_step(filter=GrayscaleFilter(),params=GrayscaleParams())
         elif(filter_value=='binarization'):
-            pipeline.add_step(filter=BinarizationFilter(),params=BinarizationParams())
+            pipeline.add_step(filter=BinarizationFilter(),params=BinarizationParams(threshold=slider_values[0]))
             
         elif(filter_value=='negative'):
             pipeline.add_step(filter=NegativeFilter(),params=NegativeParams())
         elif(filter_value=='average'):
             pipeline.add_step(filter=AverageConvolution(),params=AverageParams(slider_values[0]))
+            
+        # elif(filter_value=='gaussian'):
+        #     pipeline.add_step(filter=GaussianConvolution(),params=GaussianParams(slider_values[0]))
+            
+        # elif(filter_value=='sharpening'):
+        #     pipeline.add_step(filter=SharpeningConvolution(),params=SharpeningParams(slider_values[0]))
+            
+        elif(filter_value=='sobel'):
+            pipeline.add_step(filter=SobelEdge(),params=SobelParams(slider_values[0]))
         # elif(filter_value=='gaussian'):
         #     pipeline.add_step(filter=GaussianConvolution(),params=GaussianParams())
         
+        elif(filter_value=='roberts'):
+            pipeline.add_step(filter=RobertsEdge(),params=RobertsParams(slider_values[0]))
+        
         result_array=pipeline.execute()
+        result_array=result_array.astype(np.uint8)
 
         # Konwertujemy wynik (NumPy) ponownie na PIL
         result_img = Image.fromarray(result_array)

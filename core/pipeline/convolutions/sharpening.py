@@ -7,7 +7,7 @@ from scipy.ndimage import convolve
 class SharpeningParams(ConvolutionParams):
     """Parameters for the sharpening convolution."""
     kernel_size: int = 3
-    alpha: float = 1.0
+    alpha: int = 1.0
 
     def validate(self):
         if self.kernel_size % 2 == 0:
