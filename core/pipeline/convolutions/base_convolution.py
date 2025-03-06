@@ -36,5 +36,3 @@ class ConvolutionParams(IParams):
     def validate(self):
         pass
     
-    # def get_param_definitions():
-    #     return {}

@@ -22,4 +22,4 @@ class BaseFilter(IBase):
 class FilterParams(IParams):
     """Bazowa klasa parametrów z walidacją"""
     def validate(self):
-        pass  # Override w klasach pochodnych
+        pass  

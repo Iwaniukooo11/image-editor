@@ -39,7 +39,6 @@ class RobertsEdge(BaseEdge):
         roberts_x = np.array([[1, 0], [0, -1]])
         roberts_y = np.array([[0, 1], [-1, 0]])
         
-        # Convert RGB image to grayscale
         if img.ndim == 3:
             img = np.dot(img[..., :3], [0.2989, 0.5870, 0.1140]).astype(np.uint8)
         

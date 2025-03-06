@@ -6,23 +6,21 @@ def create_layout():
     Creates and returns the layout for the application.
     """
     return dbc.Container([
-        # Store do przechowywania danych
         dcc.Store(id='image-store'),
         dcc.Store(id='pipeline-store'),
         dcc.Store(id='original-store'),  # Do przechowywania oryginalnego obrazu
         
         # Nagłówek
         dbc.Row(
-            dbc.Col(
-                html.H1("Image Editor", className="text-center my-4"),
-            )
+            dbc.Col([
+                html.H1("Image Editor by Mateusz Iwaniuk", className="text-center my-4"),
+                html.P("Biometry Course | Faculty of Mathematics and Information Sciences | Warsaw University of Technology", className="text-center my-4"),
+                
+    ])
         ),
         
-        # Główny obszar aplikacji
         dbc.Row([
-            # Panel kontrolny (lewa strona)
             dbc.Col([
-                # Upload obrazu
                 dbc.Card([
                     dbc.CardHeader("Upload Image"),
                     dbc.CardBody([
@@ -48,7 +46,6 @@ def create_layout():
                     ])
                 ], className="mb-4"),
                 
-                # Wybór filtrów
                 dbc.Card([
                     dbc.CardHeader("Add Filter"),
                     dbc.CardBody([
@@ -76,15 +73,6 @@ def create_layout():
                     ])
                 ], className="mb-4"),
                 
-                # Historia przetwarzania
-                dbc.Card([
-                    dbc.CardHeader("Processing History"),
-                    dbc.CardBody([
-                        html.Div(id='history-steps', className="processing-history")
-                    ])
-                ], className="mb-4"),
-                
-                # Zapisz obraz
                 dbc.Card([
                     dbc.CardHeader("Save Image"),
                     dbc.CardBody([
@@ -95,7 +83,6 @@ def create_layout():
                     ])
                 ], className="mb-4"),
                 
-                # Panel z projekcjami i statystykami
                 dbc.Card([
                     dbc.CardHeader("Image Projections and Statistics"),
                     dbc.CardBody([
@@ -104,9 +91,7 @@ def create_layout():
                 ], className="mb-4")
             ], md=4),
             
-            # Panel wyświetlania (prawa strona)
             dbc.Col([
-                # Wyświetlanie obrazu
                 dbc.Card([
                     dbc.CardHeader("Image Preview"),
                     dbc.CardBody([
@@ -114,7 +99,6 @@ def create_layout():
                     ])
                 ], className="mb-4"),
                 
-                # Histogram kolorów
                 dbc.Card([
                     dbc.CardHeader("Color Histogram"),
                     dbc.CardBody([

@@ -37,7 +37,6 @@ class SobelEdge(BaseEdge):
         """
         params.validate()
         
-        # Convert RGB image to grayscale
         if img.ndim == 3:
             img = np.dot(img[..., :3], [0.2989, 0.5870, 0.1140]).astype(np.uint8)
         
