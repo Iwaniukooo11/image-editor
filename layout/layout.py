@@ -86,12 +86,14 @@ def create_layout():
                 
                 # Zapisz obraz
                 dbc.Card([
-                    dbc.CardHeader("Save Image"),
-                    dbc.CardBody([
-                        dbc.Button("Save Image", id="save-photo", color="primary", className="mb-3"),
-                        html.Div(id='save-status')
-                    ])
-                ])
+    dbc.CardHeader("Save Image"),
+    dbc.CardBody([
+        dbc.Input(id="filename-input", placeholder="Enter filename", className="mb-3"),
+        dbc.Button("Save Image", id="save-photo", color="primary", className="mb-3"),
+        html.Div(id='save-status'),
+        html.A('click here',id='download-link', download='', href='', target='_blank', style={'display': 'none'})
+    ])
+])
             ], md=4),
             
             # Panel wyświetlania (prawa strona)

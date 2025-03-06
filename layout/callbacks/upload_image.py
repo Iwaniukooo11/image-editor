@@ -243,3 +243,31 @@ def register_callbacks(app):
     #     return html.Div([
     #         html.P(f"Filter: {filter_value}, Value: {value}")
     #     ])
+    @app.callback(
+    Output('download-link', 'href'),
+    Output('download-link', 'download'),
+    Output('download-link', 'style'),
+    Input('save-photo', 'n_clicks'),
+    State('output-image-upload', 'children'),
+    State('filename-input', 'value'),
+    prevent_initial_call=True
+)
+    def save_image(n_clicks, image, filename):
+        if n_clicks is None or image is None or filename is None:
+            return dash.no_update, dash.no_update, {'display': 'none'}
+
+        # Extract base64 image data
+        header, _, encoded = image['props']['src'].partition(',')
+        download_link = f"data:image/png;base64,{encoded}"
+
+        return download_link, filename, {'display': 'block'}
+
+    @app.callback(
+        Output('save-status', 'children'),
+        Input('download-link', 'href'),
+        prevent_initial_call=True
+    )
+    def update_save_status(href):
+        if href:
+            return "Image ready for download."
+        return "Failed to prepare image for download."
