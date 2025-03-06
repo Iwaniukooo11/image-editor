@@ -17,9 +17,10 @@ from interfaces.IParams import IParams
 
 
 class ImagePipeline:
-    def __init__(self):
+    def __init__(self,img: np.array):
         """Initialize the ImagePipeline with an empty list of steps."""
         self.__steps: List[Tuple[IBase, IParams]] = []
+        self.__img = img
         
     def add_step(self, filter: IBase, params: IParams):
         """Add a filter step to the pipeline with validation.
@@ -34,7 +35,7 @@ class ImagePipeline:
             raise TypeError("params must be an instance of IParams")
         self.__steps.append((filter, params))
         
-    def execute(self, img: np.array) -> np.array:
+    def execute(self) -> np.array:
         """Execute the pipeline on the given image.
         
         Args:
@@ -43,6 +44,7 @@ class ImagePipeline:
         Returns:
             np.array: The processed image.
         """
+        img=self.__img
         for filter, params in self.__steps:
             img = filter.apply(img, params)
         return img
