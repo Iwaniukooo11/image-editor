@@ -16,7 +16,7 @@ class BrightnessParams(FilterParams):
         return {
             'value': {
                 'type': 'slider',
-                'min': -100,
+                'min': 0,
                 'max': 100,
                 'step': 1,
                 'default': 0
