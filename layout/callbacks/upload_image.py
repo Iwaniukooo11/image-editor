@@ -4,16 +4,21 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State,ALL
 from core.pipeline.image_pipeline import ImagePipeline
-from core.pipeline.filters.brightness import BrightnessParams
-from core.pipeline.filters.contrast import ContrastParams
-from core.pipeline.filters.grayscale import GrayscaleParams
-from core.pipeline.filters.binarization import BinarizationParams
-from core.pipeline.filters.negative import NegativeParams
-from core.pipeline.convolutions.average import AverageParams
-from core.pipeline.convolutions.gaussian import GaussianParams
-from core.pipeline.convolutions.sharpening import SharpeningParams
-from core.pipeline.edges.sobel import SobelParams
-from core.pipeline.edges.roberts import RobertsParams
+from core.pipeline.filters.brightness import BrightnessParams, BrightnessFilter
+from core.pipeline.filters.contrast import ContrastParams,ContrastFilter
+from core.pipeline.filters.grayscale import GrayscaleParams, GrayscaleFilter
+from core.pipeline.filters.binarization import BinarizationParams, BinarizationFilter
+from core.pipeline.filters.negative import NegativeParams, NegativeFilter
+from core.pipeline.convolutions.average import AverageParams, AverageConvolution
+from core.pipeline.convolutions.gaussian import GaussianParams, GaussianConvolution
+from core.pipeline.convolutions.sharpening import SharpeningParams, SharpeningConvolution
+from core.pipeline.edges.sobel import SobelParams,SobelEdge
+from core.pipeline.edges.roberts import RobertsParams,RobertsEdge
+import base64
+import io
+import numpy as np
+from PIL import Image
+
 
 # Dictionary mapping filter names to their parameter classes
 FILTER_PARAM_MAPPING = {
@@ -98,13 +103,13 @@ def register_callbacks(app):
         ])
 
 
-    @app.callback(Output('output-image-upload', 'children'),
-                  Input('upload-image', 'contents'))
-    def update_output_foo(contents):
-        if contents is not None:
+    # @app.callback(Output('output-image-upload', 'children'),
+    #               Input('upload-image', 'contents'))
+    # def update_output_foo(contents):
+    #     if contents is not None:
             
-            return parse_contents(contents)
-        return html.Div()
+    #         return parse_contents(contents)
+    #     return html.Div()
     
     @app.callback(Output('add-filter', 'disabled'),
                   [Input('upload-image', 'contents'),
@@ -115,28 +120,91 @@ def register_callbacks(app):
 
  # ...existing code...
     @app.callback(
-    Output('history-steps', 'children'),
+    # Output('output-image-upload', 'children',allow_duplicate=True),
+    # Input('add-filter', 'n_clicks'),
+    # Input('filter-dropdown', 'value'),
+    # Input({'type': 'slider', 'index': ALL}, 'value'),
+    # Input('output-image-upload', 'children'),
+    # Input('upload-image', 'contents'),
+    # prevent_initial_call=True
+    Output('output-image-upload', 'children', allow_duplicate=True),
     Input('add-filter', 'n_clicks'),
-    Input('filter-dropdown', 'value'),
-    Input({'type': 'slider', 'index': ALL}, 'value')
+    Input('upload-image', 'contents'),
+    
+    State('filter-dropdown', 'value'),
+    State({'type': 'slider', 'index': ALL}, 'value'),
+    # State('output-image-upload', 'children'),
+    State('output-image-upload', 'children'),
+    prevent_initial_call=True
 )
-    def update_history(n_clicks, filter_value, slider_values):
-        print('start',filter_value,slider_values)
-        if 'add-filter' not in  [p['prop_id'] for p in dash.callback_context.triggered][0]:
-        # or not filter_value:
-            return None
+    def update_history(n_clicks,upload_image,filter_value, slider_values, image):
+        # print('start',filter_value,slider_values)
+        # if 'add-filter' not in  [p['prop_id'] for p in dash.callback_context.triggered][0]:
+        # # or not filter_value:
+        #     print('exiting...')
+            
+        #     # print(dash.callback_context.triggered[0])
+            
+        #     if image['props']['children'] is not None:
+        #         print('in if')
+        #         return parse_contents(image)
+        print('start')
+        if n_clicks==0 or n_clicks is None:
+            print('in if2')
+            return parse_contents(upload_image)
         
         # Create a list of parameter information with selected values
         param_info_list = []
         for i, value in enumerate(slider_values):
-            param_info_list.append(html.Li(f"Slider {i + 1}: {value}"))
+            print(f"Slider {i + 1}: {value}")
         
         # Return the filter information
-        return html.Div([
-            html.H5(f"Applied Filter: {filter_value.capitalize()}"),
-            html.P("Parameters:"),
-            html.Ul(param_info_list)
-        ])
+        # print('image',image)
+        # print('image',image)
+        header, _, encoded = image['props']['src'].partition(',')
+        decoded = base64.b64decode(encoded)
+        
+        with io.BytesIO(decoded) as buf:
+            pil_img = Image.open(buf).convert('RGB')
+            image = np.array(pil_img)
+
+        # Uzyskujemy przetworzone dane z pipeline
+        print('filter_value',filter_value,'n',n_clicks)
+        pipeline = ImagePipeline(image)
+        # print('!',filter_value,slider_values,'valuye=',value)
+        if(filter_value=='brightness'):
+            pipeline.add_step(filter=BrightnessFilter(),params=BrightnessParams(value=slider_values[0]))
+            
+        elif(filter_value=='contrast'):
+            pipeline.add_step(filter=ContrastFilter(),params=ContrastParams(value=slider_values[0]))
+            
+        # elif(filter_value=='grayscale'):
+        #     pipeline.add_step(filter=GrayscaleFilter(),params=GrayscaleParams())
+        elif(filter_value=='binarization'):
+            pipeline.add_step(filter=BinarizationFilter(),params=BinarizationParams())
+            
+        elif(filter_value=='negative'):
+            pipeline.add_step(filter=NegativeFilter(),params=NegativeParams())
+        elif(filter_value=='average'):
+            pipeline.add_step(filter=AverageConvolution(),params=AverageParams(slider_values[0]))
+        # elif(filter_value=='gaussian'):
+        #     pipeline.add_step(filter=GaussianConvolution(),params=GaussianParams())
+        
+        result_array=pipeline.execute()
+
+        # Konwertujemy wynik (NumPy) ponownie na PIL
+        result_img = Image.fromarray(result_array)
+
+        # Zapis do pamięci w formacie PNG
+        buff = io.BytesIO()
+        result_img.save(buff, format="PNG")
+        encoded_result = base64.b64encode(buff.getvalue()).decode("utf-8")
+
+        # Budujemy URI data:image/png;base64,...
+        base64_uri = f"data:image/png;base64,{encoded_result}"
+        print('before return')
+        # Zwracamy gotowy obraz przez parse_contents
+        return parse_contents(base64_uri)
    
     # @app.callback(
     #     Output('history-steps', 'children'),
