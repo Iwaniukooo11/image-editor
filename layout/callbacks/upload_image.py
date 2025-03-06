@@ -46,6 +46,7 @@ def create_param_ui(param_name, param_info):
                 step=param_info.get('step', 1),
                 value=param_info.get('default', 0),
                 # marks={i: str(i) for i in range(param_info.get('min', 0), param_info.get('max', 100) + 1, 10)},
+                marks=None,
                 tooltip={"placement": "bottom", "always_visible": True}
                 
             )

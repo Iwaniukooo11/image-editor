@@ -17,9 +17,9 @@ class SobelParams(EdgeParams):
             'threshold': {
                 'type': 'slider',
                 'min': 0,
-                'max': 255,
+                'max': 21,
                 'step': 1,
-                'default': 128
+                'default': 2
             }
         }
         
